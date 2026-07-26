@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | Henrique Severo</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="src/styles/styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">Henrique Severo</a>
+      <ul class="nav-links">
+        <li><a href="#hero"      data-i18n="nav.home">Home</a></li>
+        <li><a href="#what-i-do" data-i18n="nav.whatido">What I Do</a></li>
+        <li><a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a></li>
+        <li><a href="#testimonials" data-i18n="nav.testimonials">Reviews</a></li>
+        <li><a href="#skills"    data-i18n="nav.skills">Skills</a></li>
+        <li><a href="src/articles/index.html" data-i18n="nav.articles">Articles</a></li>
+        <li><a href="#contact"   data-i18n="nav.contact" class="nav-cta">Contact</a></li>
+      </ul>
+      <div class="nav-right">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-trigger" id="langTrigger" aria-expanded="false" aria-haspopup="listbox" aria-label="Select language">
+            <span class="fi fi-us lang-flag" id="langFlag"></span>
+            <span class="lang-code" id="langCode">EN</span>
+            <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="lang-dropdown" id="langDropdown" role="listbox">
+            <button class="lang-option" data-lang="en" role="option">
+              <span class="fi fi-us"></span>
+              <span>English</span>
+            </button>
+            <button class="lang-option" data-lang="pt" role="option">
+              <span class="fi fi-br"></span>
+              <span>Português</span>
+            </button>
+            <button class="lang-option" data-lang="es" role="option">
+              <span class="fi fi-es"></span>
+              <span>Español</span>
+            </button>
+          </div>
+        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">
+          <!-- sun: visible in dark mode -->
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="12" y1="2"     x2="12" y2="5"/>
+            <line x1="12" y1="19"    x2="12" y2="22"/>
+            <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+            <line x1="2"  y1="12"    x2="5"  y2="12"/>
+            <line x1="19" y1="12"    x2="22" y2="12"/>
+            <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+            <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- moon: visible in light mode -->
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="nav-hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-content">
+      <div class="hero-layout">
+        <div class="hero-text">
+          <h1 class="hero-name reveal" id="heroName">Henrique Severo</h1>
+          <p class="hero-role reveal" data-i18n="hero.tag">I'm a Software Engineer</p>
+          <p class="hero-sub reveal" data-i18n="hero.sub">From São Paulo, Brazil, I'm a Software Engineer with 11 years of experience designing and building backend systems for distributed, high-availability environments.</p>
+          <div class="hero-cta reveal">
+            <a href="#contact" class="btn btn-primary btn-pill" data-i18n="hero.cta_contact">Get in touch</a>
+          </div>
+          <div class="hero-scroll reveal"><span></span></div>
+        </div>
+        <div class="hero-photo reveal">
+          <div class="photo-frame">
+            <div class="photo-blob-solid" aria-hidden="true"></div>
+            <img src="src/assets/henrique.png" alt="Henrique Severo" class="photo-cutout" />
+            <div class="photo-stats">
+              <div class="stat-badge">
+                <span class="stat-num">11+</span>
+                <span class="stat-label" data-i18n="about.stat1_label">Years of Experience</span>
+              </div>
+              <div class="stat-badge">
+                <span class="stat-num" data-i18n="about.stat2_num">Backend</span>
+                <span class="stat-label" data-i18n="about.stat2_label">Specialist</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I DO -->
+  <section id="what-i-do">
+    <div class="container">
+      <h2 class="section-title center reveal title-tight" data-i18n="whatido.title">WHAT I DO</h2>
+      <div class="section-label center no-dash label-below reveal" data-i18n="whatido.label">Specialization</div>
+
+      <div class="whatido-grid">
+
+        <div class="whatido-card reveal">
+          <span class="whatido-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 12h6m2-5.3L13 12l2 5.3"/></svg>
+          </span>
+          <h3 data-i18n="whatido1.title">Backend Engineering</h3>
+          <p data-i18n="whatido1.desc">I design and build backend systems for distributed, high-demand environments, focused on reliability, scalability, and performance.</p>
+        </div>
+
+        <div class="whatido-card reveal">
+          <span class="whatido-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17.5h7M17.5 14v7"/></svg>
+          </span>
+          <h3 data-i18n="whatido2.title">System Design &amp; Architecture</h3>
+          <p data-i18n="whatido2.desc">I make architectural decisions for systems that need to scale safely under strict regulatory and availability constraints.</p>
+        </div>
+
+        <div class="whatido-card reveal">
+          <span class="whatido-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2a7 7 0 0 1 7 7c0 4-3.5 7-7 9-3.5-2-7-5-7-9a7 7 0 0 1 7-7z"/><path d="M9 12h6M12 9v6"/></svg>
+          </span>
+          <h3 data-i18n="whatido3.title">AI Engineering</h3>
+          <p data-i18n="whatido3.desc">I build LLM-based applications, RAG pipelines, and agent systems, with a focus on observability in production.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section id="portfolio">
+    <div class="container">
+      <h2 class="section-title center reveal title-tight" data-i18n="portfolio.title">On GitHub</h2>
+      <div class="section-label center no-dash label-below reveal" data-i18n="portfolio.label">Code</div>
+
+      <div class="github-feature reveal" id="githubFeature" data-github-user="henriquesevero">
+        <div class="github-feature-icon">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        </div>
+        <h3 data-i18n="portfolio.gh_title">Explore my code on GitHub</h3>
+        <div class="github-feature-stats" id="githubStats"></div>
+
+        <a href="https://github.com/henriquesevero" target="_blank" rel="noopener" class="btn btn-primary btn-pill github-feature-cta">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          <span data-i18n="portfolio.gh_cta">View my GitHub profile</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS — MOCK DATA: substituir por avaliações reais do LinkedIn (nome, cargo, foto) quando o usuário enviar -->
+  <section id="testimonials">
+    <div class="container">
+      <h2 class="section-title center reveal title-tight" data-i18n="testimonials.title">What People Say</h2>
+      <div class="section-label center no-dash label-below reveal" data-i18n="testimonials.label">Recommendation</div>
+
+      <div class="testimonial-carousel reveal">
+        <div class="testimonial-track" id="testimonialTrack">
+
+          <!-- 2026 — Yan Kelvin, Senior Software Engineer @ iFood -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote">&#8220;</span>
+            <p class="testimonial-text" data-i18n="testimonials1.text">Henrique is a professional with excellent technical command and a strong commitment to the quality of his work. He has always shown proactivity, maturity in decision-making, and the ability to add value both technically and as part of a team.</p>
+            <div class="testimonial-author">
+              <span class="testimonial-avatar"><img src="src/assets/testimonials/yan.png" alt="Yan Kelvin" /></span>
+              <span class="testimonial-author-info">
+                <span class="testimonial-name" data-i18n="testimonials1.name">Yan Kelvin</span>
+                <span class="testimonial-role" data-i18n="testimonials1.role">Senior Software Engineer at iFood</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 2026 — Evandro Alcantara, Coordenador de Risco @ Itaú Unibanco -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote">&#8220;</span>
+            <p class="testimonial-text" data-i18n="testimonials2.text">I had the opportunity to work with Henrique and I can say he is an extremely competent, dedicated, and collaborative professional. During the time we worked together, he showed great technical ability and always stayed focused on the goals, adding great value to the team.</p>
+            <div class="testimonial-author">
+              <span class="testimonial-avatar"><img src="src/assets/testimonials/evandro.jpeg" alt="Evandro Alcantara" /></span>
+              <span class="testimonial-author-info">
+                <span class="testimonial-name" data-i18n="testimonials2.name">Evandro Alcantara</span>
+                <span class="testimonial-role" data-i18n="testimonials2.role">Risk Coordinator at Itaú Unibanco</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 2017 — Roney Amorim, Coordenador de Engenharia @ Itaú Unibanco -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote">&#8220;</span>
+            <p class="testimonial-text" data-i18n="testimonials3.text">Henrique is a dedicated and extremely competent person in what he does, and always showed skill, technical ability, and proactivity in solving the problems that came up. He puts forward his ideas to further improve the work requested, which will certainly make him a good Systems Analyst.</p>
+            <div class="testimonial-author">
+              <span class="testimonial-avatar"><img src="src/assets/testimonials/roney.jpeg" alt="Roney Amorim" /></span>
+              <span class="testimonial-author-info">
+                <span class="testimonial-name" data-i18n="testimonials3.name">Roney Amorim</span>
+                <span class="testimonial-role" data-i18n="testimonials3.role">Engineering Coordinator at Itaú Unibanco</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 2017 — João Maziero, Engenheiro de Software @ BTG Pactual -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote">&#8220;</span>
+            <p class="testimonial-text" data-i18n="testimonials4.text">Henrique is an exemplary professional with impeccable character. Always committed to the company's vision and mission, he strongly pursues applying his technical skills to contribute to the business. He has a unique ability to engage people in teamwork and achieve excellent results! It's always a great pleasure to work alongside professionals like Henrique!</p>
+            <div class="testimonial-author">
+              <span class="testimonial-avatar"><img src="src/assets/testimonials/joao.jpeg" alt="João Maziero" /></span>
+              <span class="testimonial-author-info">
+                <span class="testimonial-name" data-i18n="testimonials4.name">João Maziero</span>
+                <span class="testimonial-role" data-i18n="testimonials4.role">Software Engineer at BTG Pactual</span>
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="testimonial-controls">
+          <button type="button" class="testimonial-arrow" id="testimonialPrev" aria-label="Previous testimonial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button type="button" class="testimonial-arrow" id="testimonialNext" aria-label="Next testimonial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title center reveal title-tight" data-i18n="skills.title">Skills</h2>
+      <div class="section-label center no-dash label-below reveal" data-i18n="skills.label">Expertise</div>
+
+      <!-- Knowledge areas (descriptive, no tool-name pills) -->
+      <div class="knowledge-grid">
+
+        <div class="knowledge-item reveal">
+          <div class="tech-cat-label" data-i18n="skills.cat1">Backend &amp; Distributed Systems</div>
+          <p class="knowledge-text" data-i18n="skills.cat1_desc">Eleven years designing and building backend systems in Python, Go, C#/.NET, and Node.js/TypeScript, with a focus on reliability and scale in high-demand, distributed environments.</p>
+        </div>
+
+        <div class="knowledge-item reveal">
+          <div class="tech-cat-label" data-i18n="skills.cat2">Cloud &amp; Infrastructure</div>
+          <p class="knowledge-text" data-i18n="skills.cat2_desc">Hands-on experience running production workloads on AWS, provisioning infrastructure with Terraform, containerizing with Docker and Kubernetes, and building event-driven pipelines with Kafka.</p>
+        </div>
+
+        <div class="knowledge-item reveal">
+          <div class="tech-cat-label" data-i18n="skills.cat3">Data &amp; Databases</div>
+          <p class="knowledge-text" data-i18n="skills.cat3_desc">Comfortable across relational (PostgreSQL, MySQL, SQL Server) and non-relational (MongoDB, Redis) databases, choosing the right store for consistency, scale, or latency needs.</p>
+        </div>
+
+        <div class="knowledge-item reveal">
+          <div class="tech-cat-label" data-i18n="skills.cat4">AI Engineering</div>
+          <p class="knowledge-text" data-i18n="skills.cat4_desc">Building LLM-based applications and agent systems with LangChain, LangGraph, and MCP, and using AI-native tools like Claude Code, Cursor, and Devin in daily engineering work.</p>
+        </div>
+
+      </div>
+
+      <!-- Spoken Languages -->
+      <div class="spoken-langs reveal">
+        <div class="tech-cat-label" data-i18n="skills.spoken_label">Spoken Languages</div>
+        <div class="spoken-row">
+
+          <div class="spoken-card">
+            <span class="fi fi-br spoken-flag"></span>
+            <div class="spoken-info">
+              <span class="spoken-name">Português</span>
+              <span class="spoken-level" data-i18n="skills.lang_pt_level">Native</span>
+            </div>
+            <div class="spoken-dots">
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+            </div>
+          </div>
+
+          <div class="spoken-card">
+            <span class="fi fi-us spoken-flag"></span>
+            <div class="spoken-info">
+              <span class="spoken-name">English</span>
+              <span class="spoken-level" data-i18n="skills.lang_en_level">B2 · Intermediate</span>
+            </div>
+            <div class="spoken-dots">
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot filled"></span>
+              <span class="sdot"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title center reveal title-tight" data-i18n-html="contact.title">Let's<br /><span>talk?</span></h2>
+      <div class="section-label center no-dash label-below reveal" data-i18n="contact.label">Contact</div>
+
+      <div class="contact-cards">
+        <a href="mailto:contato@henriquesevero.com" class="contact-card reveal">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </span>
+          <span class="contact-card-title" data-i18n="contact.email_label">Email</span>
+        </a>
+        <a href="https://www.linkedin.com/in/henriquesevero" target="_blank" rel="noopener" class="contact-card reveal">
+          <span class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </span>
+          <span class="contact-card-title">LinkedIn</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <p data-i18n="footer.copy">© 2026 Henrique Bittencourt Severo · Built with care</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="src/scripts/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #08101c;
+      --bg-2:     #0c1526;
+      --bg-card:  #111f32;
+      --border:   rgba(255,255,255,0.07);
+      --border-2: rgba(255,255,255,0.14);
+      --accent:   #22c55e;
+      --accent-2: #4ade80;
+      --text-1:   #ecf2ff;
+      --text-2:   #8baabe;
+      --text-3:   #4c6880;
+      --red:      #f87171;
+      --red-bg:   rgba(248,113,113,0.08);
+      --red-bd:   rgba(248,113,113,0.25);
+      --green:    #4ade80;
+      --font:     'Inter', sans-serif;
+      --mono:     'JetBrains Mono', monospace;
+      --radius:   10px;
+      --radius-sm:6px;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text-1); font-size: 14px; line-height: 1.6; }
+
+    /* ── Layout ── */
+    #app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 52px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card); flex-shrink: 0; gap: 1rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .header-title { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em; }
+    .header-badge {
+      font-size: 0.68rem; font-family: var(--mono);
+      padding: 2px 8px; border-radius: 20px; border: 1px solid;
+    }
+    .badge-ok    { color: var(--green); border-color: rgba(74,222,128,0.3);  background: rgba(74,222,128,0.08); }
+    .badge-error { color: var(--red);   border-color: var(--red-bd);          background: var(--red-bg); }
+    .badge-idle  { color: var(--text-3);border-color: var(--border-2); }
+    .header-right { display: flex; align-items: center; gap: 0.5rem; }
+
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-2); background: transparent;
+      color: var(--text-2); cursor: pointer; transition: all 0.2s;
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent-2); }
+    .icon-btn svg { width: 15px; height: 15px; }
+
+    /* ── Editor body ── */
+    .editor-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+    /* ── Left panel ── */
+    .panel-left {
+      width: 480px; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+    }
+    .tab {
+      flex: 1; padding: 0.625rem 1rem;
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-3); font-family: var(--font); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+    }
+    .tab:hover { color: var(--text-2); }
+    .tab.active { color: var(--accent-2); border-bottom-color: var(--accent); }
+
+    /* ── Write pane ── */
+    #pane-write { display: flex; flex-direction: column; flex: 1; overflow-y: auto; min-height: 0; }
+    #pane-write::-webkit-scrollbar { width: 4px; }
+    #pane-write::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    /* ── Edit mode banner ── */
+    .edit-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1.5rem; background: rgba(34,197,94,0.08);
+      border-bottom: 1px solid rgba(34,197,94,0.2); flex-shrink: 0;
+    }
+    .edit-banner-label {
+      font-size: 0.72rem; font-family: var(--mono); color: var(--accent-2);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .edit-banner-label svg { width: 12px; height: 12px; }
+    .btn-new-article {
+      font-size: 0.72rem; font-family: var(--mono); color: var(--text-3);
+      background: none; border: none; cursor: pointer; padding: 2px 6px;
+      border-radius: 4px; transition: color 0.2s;
+    }
+    .btn-new-article:hover { color: var(--text-1); }
+
+    /* ── Form sections ── */
+    .section { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .section-title {
+      font-size: 0.7rem; font-family: var(--mono); text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title::before {
+      content: ''; display: block; width: 3px; height: 12px;
+      background: var(--accent); border-radius: 2px;
+    }
+
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+    label {
+      display: block; font-size: 0.75rem; color: var(--text-3);
+      font-family: var(--mono); margin-bottom: 0.375rem; letter-spacing: 0.03em;
+    }
+    input[type=text], input[type=number], input[type=date], textarea, select {
+      width: 100%; background: var(--bg-2); border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm); color: var(--text-1);
+      font-family: var(--font); font-size: 0.875rem; padding: 0.5rem 0.75rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .slug-preview { font-size: 0.72rem; color: var(--accent-2); font-family: var(--mono); margin-top: 0.3rem; opacity: 0.8; }
+
+    /* ── Cover ── */
+    .cover-drop {
+      border: 1px dashed var(--border-2); border-radius: var(--radius);
+      padding: 1.25rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
+    }
+    .cover-drop:hover, .cover-drop.drag-over { border-color: var(--accent); background: rgba(34,197,94,0.05); }
+    .cover-drop input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%; padding: 0; border: none; background: none;
+    }
+    .cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-3); pointer-events: none; }
+    .cover-placeholder svg { width: 28px; height: 28px; opacity: 0.5; }
+    .cover-placeholder p { font-size: 0.8rem; }
+    .cover-placeholder span { font-size: 0.7rem; font-family: var(--mono); }
+    .cover-preview { width: 100%; aspect-ratio: 21/9; object-fit: cover; border-radius: var(--radius-sm); display: none; }
+    .cover-preview.visible { display: block; }
+    .cover-remove { margin-top: 0.5rem; font-size: 0.72rem; color: var(--red); cursor: pointer; background: none; border: none; font-family: var(--mono); opacity: 0.8; }
+    .cover-remove:hover { opacity: 1; }
+
+    /* ── Markdown editor ── */
+    .md-editor-wrap { flex: 1; display: flex; flex-direction: column; min-height: 240px; }
+    #markdown-input {
+      flex: 1; resize: none; font-family: var(--mono); font-size: 0.83rem;
+      line-height: 1.75; padding: 1.25rem 1.5rem;
+      background: var(--bg); border: none; border-radius: 0;
+      color: var(--text-2); min-height: 240px;
+    }
+    #markdown-input:focus { border-color: transparent; }
+
+    /* ── Publish bar ── */
+    .publish-bar {
+      padding: 0.875rem 1.5rem; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem;
+      flex-shrink: 0; background: var(--bg-card);
+    }
+    .btn-publish {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.25rem; background: var(--accent);
+      border: 1px solid var(--accent); border-radius: var(--radius-sm);
+      color: #fff; font-family: var(--font); font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-publish:hover { background: var(--accent-2); border-color: var(--accent-2); }
+    .btn-publish:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-publish svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .btn-secondary {
+      padding: 0.55rem 1rem; background: transparent; border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm); color: var(--text-2); font-family: var(--font);
+      font-size: 0.875rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-secondary:hover { border-color: var(--border-2); color: var(--text-1); }
+    .publish-status { font-size: 0.78rem; font-family: var(--mono); color: var(--text-3); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .publish-status.ok    { color: var(--green); }
+    .publish-status.error { color: var(--red); }
+
+    /* ── Articles pane ── */
+    #pane-articles { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+
+    .articles-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--border);
+      background: var(--bg-2); flex-shrink: 0;
+    }
+    .articles-count { font-size: 0.75rem; font-family: var(--mono); color: var(--text-3); }
+
+    .articles-list { flex: 1; overflow-y: auto; }
+    .articles-list::-webkit-scrollbar { width: 4px; }
+    .articles-list::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    .article-item {
+      display: flex; align-items: center; gap: 0.875rem;
+      padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .article-item:hover { background: rgba(255,255,255,0.02); }
+
+    .article-item-cover {
+      width: 64px; height: 40px; border-radius: 6px; flex-shrink: 0;
+      background: var(--bg-card); border: 1px solid var(--border);
+      background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .article-item-cover svg { width: 16px; height: 16px; opacity: 0.25; }
+
+    .article-item-info { flex: 1; min-width: 0; }
+    .article-item-title {
+      display: block; font-size: 0.83rem; font-weight: 500; color: var(--text-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 0.2rem;
+    }
+    .article-item-meta { font-size: 0.7rem; font-family: var(--mono); color: var(--text-3); }
+
+    .article-item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+    .btn-edit-item {
+      padding: 4px 10px; font-size: 0.72rem; font-family: var(--mono);
+      background: transparent; border: 1px solid var(--border-2);
+      border-radius: 4px; color: var(--text-2); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-edit-item:hover { border-color: var(--accent); color: var(--accent-2); }
+    .btn-delete-item {
+      padding: 4px 10px; font-size: 0.72rem; font-family: var(--mono);
+      background: transparent; border: 1px solid transparent;
+      border-radius: 4px; color: var(--text-3); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-delete-item:hover { border-color: var(--red-bd); color: var(--red); background: var(--red-bg); }
+
+    .articles-empty, .articles-loading-msg {
+      padding: 3rem 1.5rem; text-align: center;
+      font-size: 0.8rem; font-family: var(--mono); color: var(--text-3);
+    }
+
+    /* ── Right panel ── */
+    .panel-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .preview-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 42px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0; background: var(--bg-2);
+    }
+    .preview-label { font-size: 0.7rem; font-family: var(--mono); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .preview-scroll { flex: 1; overflow-y: auto; padding: 2rem; }
+    .preview-scroll::-webkit-scrollbar { width: 4px; }
+    .preview-scroll::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    /* ── Article preview styles ── */
+    .preview-cover { width: 100%; aspect-ratio: 21/9; object-fit: cover; border-radius: 10px; margin-bottom: 2rem; border: 1px solid var(--border); }
+    .preview-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1.25rem; }
+    .atag { font-size: 0.67rem; font-family: var(--mono); color: var(--accent-2); background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); padding: 2px 8px; border-radius: 20px; }
+    .preview-title { font-size: clamp(1.5rem,3vw,2.2rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.025em; color: var(--text-1); margin-bottom: 0.75rem; }
+    .preview-meta { font-size: 0.78rem; font-family: var(--mono); color: var(--text-3); margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .preview-body { font-size: 1rem; line-height: 1.85; color: var(--text-2); }
+    .preview-body h2 { font-size: 1.4rem; font-weight: 700; color: var(--text-1); margin: 2rem 0 0.75rem; }
+    .preview-body h3 { font-size: 1.15rem; font-weight: 700; color: var(--text-1); margin: 1.75rem 0 0.5rem; }
+    .preview-body p  { margin-bottom: 1.25rem; }
+    .preview-body a  { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
+    .preview-body strong { color: var(--text-1); font-weight: 600; }
+    .preview-body ul, .preview-body ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .preview-body li { margin-bottom: 0.3rem; }
+    .preview-body blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: var(--text-2); font-style: italic; }
+    .preview-body code { font-family: var(--mono); font-size: 0.85em; background: var(--bg-card); border: 1px solid var(--border-2); padding: 1px 5px; border-radius: 4px; color: var(--accent-2); }
+    .preview-body pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; }
+    .preview-body pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.875rem; line-height: 1.65; }
+    .preview-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .preview-body table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+    .preview-body th, .preview-body td { padding: 0.5rem 0.875rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.875rem; }
+    .preview-body th { font-weight: 600; color: var(--text-1); border-bottom-width: 2px; border-color: var(--border-2); }
+
+    /* ── Settings modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .modal-overlay.hidden { display: none; }
+    .modal { background: var(--bg-card); border: 1px solid var(--border-2); border-radius: 14px; padding: 2rem; width: 440px; max-width: calc(100vw - 2rem); }
+    .modal-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.375rem; }
+    .modal-sub { font-size: 0.8rem; color: var(--text-3); margin-bottom: 1.75rem; line-height: 1.6; }
+    .modal-sub a { color: var(--accent-2); }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .input-wrap { position: relative; }
+    .input-wrap input { padding-right: 2.5rem; }
+    .toggle-secret { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-3); cursor: pointer; padding: 0; }
+    .toggle-secret:hover { color: var(--text-1); }
+    .toggle-secret svg { width: 15px; height: 15px; display: block; }
+
+    /* ── Confirm modal ── */
+    .confirm-modal { background: var(--bg-card); border: 1px solid var(--border-2); border-radius: 14px; padding: 1.75rem; width: 380px; max-width: calc(100vw - 2rem); }
+    .confirm-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .confirm-msg { font-size: 0.82rem; color: var(--text-2); line-height: 1.6; margin-bottom: 1.5rem; }
+    .confirm-msg strong { color: var(--text-1); }
+    .confirm-actions { display: flex; gap: 0.75rem; }
+    .btn-danger { padding: 0.55rem 1.25rem; background: rgba(248,113,113,0.15); border: 1px solid var(--red-bd); border-radius: var(--radius-sm); color: var(--red); font-family: var(--font); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-danger:hover { background: rgba(248,113,113,0.25); }
+    .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Toast ── */
+    #toasts { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 200; }
+    .toast { padding: 0.65rem 1rem; background: var(--bg-card); border: 1px solid var(--border-2); border-radius: var(--radius-sm); font-size: 0.8rem; font-family: var(--mono); max-width: 320px; animation: slideIn 0.2s ease; border-left: 3px solid var(--border-2); }
+    .toast.ok    { border-left-color: var(--green); color: var(--green); }
+    .toast.error { border-left-color: var(--red);   color: var(--red); }
+    .toast.info  { border-left-color: var(--accent); color: var(--accent-2); }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent-2)">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+      <span class="header-title">Article Editor</span>
+      <span class="header-badge badge-idle" id="conn-badge">not configured</span>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="btn-settings" title="GitHub settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor body -->
+  <div class="editor-body">
+
+    <!-- Left panel -->
+    <div class="panel-left">
+      <div class="tabs">
+        <button class="tab active" id="tab-write" onclick="switchTab('write')">Write</button>
+        <button class="tab" id="tab-articles" onclick="switchTab('articles')">Articles</button>
+      </div>
+
+      <!-- Write pane -->
+      <div id="pane-write">
+
+        <!-- Edit mode banner -->
+        <div class="edit-banner" id="edit-banner" style="display:none">
+          <span class="edit-banner-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editing: <span id="edit-banner-slug" style="color:var(--text-1)"></span>
+          </span>
+          <button class="btn-new-article" onclick="newArticle()">+ New article</button>
+        </div>
+
+        <!-- Metadata -->
+        <div class="section">
+          <div class="section-title">Metadata</div>
+          <div class="field">
+            <label>Title *</label>
+            <input type="text" id="f-title" placeholder="Article title" />
+            <div class="slug-preview" id="slug-preview"></div>
+          </div>
+          <div class="field">
+            <label>Excerpt *</label>
+            <textarea id="f-excerpt" rows="3" placeholder="Short summary (1-2 sentences)"></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Tags (comma-separated)</label>
+              <input type="text" id="f-tags" placeholder="Go, Backend, Cloud" />
+            </div>
+            <div class="field">
+              <label>Read time (min)</label>
+              <input type="number" id="f-readtime" value="5" min="1" max="60" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+
+        <!-- Cover -->
+        <div class="section">
+          <div class="section-title">Cover Image</div>
+          <div class="cover-drop" id="cover-drop">
+            <input type="file" id="f-cover" accept="image/png,image/jpeg,image/webp" />
+            <div class="cover-placeholder" id="cover-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <p>Click or drag an image here</p>
+              <span>PNG, JPG, WebP</span>
+            </div>
+            <img id="cover-img-preview" class="cover-preview" alt="" />
+          </div>
+          <button class="cover-remove" id="btn-remove-cover" style="display:none" onclick="removeCover()">Remove image</button>
+        </div>
+
+        <!-- Markdown editor -->
+        <div class="section md-editor-wrap" style="padding:0;border-bottom:none;flex:1;">
+          <div style="padding:0.875rem 1.5rem 0.5rem;border-bottom:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:0.7rem;font-family:var(--mono);color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;">Content (Markdown)</span>
+            <span style="font-size:0.7rem;font-family:var(--mono);color:var(--text-3)" id="char-count">0 chars</span>
+          </div>
+          <textarea id="markdown-input" placeholder="# Article Title&#10;&#10;Write your content here..."></textarea>
+        </div>
+
+        <!-- Publish bar -->
+        <div class="publish-bar">
+          <button class="btn-publish" id="btn-publish" onclick="publish()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span id="btn-publish-label">Publish</span>
+          </button>
+          <button class="btn-secondary" onclick="confirmClear()">Clear</button>
+          <span class="publish-status" id="publish-status"></span>
+        </div>
+      </div>
+
+      <!-- Articles pane -->
+      <div id="pane-articles">
+        <div class="articles-toolbar">
+          <span class="articles-count" id="articles-count">—</span>
+          <button class="icon-btn" id="btn-refresh" onclick="loadArticlesList()" title="Refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+        </div>
+        <div class="articles-list" id="articles-list">
+          <p class="articles-loading-msg">Configure GitHub settings to load articles.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: preview -->
+    <div class="panel-right">
+      <div class="preview-header">
+        <span class="preview-label">Preview</span>
+      </div>
+      <div class="preview-scroll" id="preview-scroll">
+        <img id="preview-cover" class="preview-cover" alt="" style="display:none" />
+        <div class="preview-tags" id="preview-tags"></div>
+        <h1 class="preview-title" id="preview-title" style="color:var(--text-3);font-style:italic;font-weight:400;font-size:1.25rem">Start writing to see a preview</h1>
+        <div class="preview-meta" id="preview-meta" style="display:none"></div>
+        <div class="preview-body" id="preview-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay hidden" id="modal-settings">
+  <div class="modal">
+    <div class="modal-title">GitHub Configuration</div>
+    <div class="modal-sub">
+      Create a <a href="https://github.com/settings/tokens/new?scopes=repo&description=Article+Editor" target="_blank">Personal Access Token</a> with <code style="font-family:var(--mono);color:var(--accent-2)">repo</code> scope. Stored only in your browser's localStorage.
+    </div>
+    <div class="field">
+      <label>GitHub Token *</label>
+      <div class="input-wrap">
+        <input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+        <button class="toggle-secret" id="btn-toggle-token">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Owner (GitHub username)</label>
+        <input type="text" id="s-owner" placeholder="henriquesevero" />
+      </div>
+      <div class="field">
+        <label>Repository name</label>
+        <input type="text" id="s-repo" placeholder="henriquesevero-site" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Branch</label>
+      <input type="text" id="s-branch" value="main" placeholder="main" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-publish" id="btn-save-settings" onclick="saveSettings()">Save &amp; Connect</button>
+      <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete modal -->
+<div class="modal-overlay hidden" id="modal-confirm">
+  <div class="confirm-modal">
+    <div class="confirm-title">Delete article?</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="btn-danger" id="btn-confirm-delete" onclick="confirmDeleteExecute()">Delete</button>
+      <button class="btn-secondary" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────
+const LS_KEY = 'hs_admin_cfg';
+let cfg = (() => { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { return null; } })();
+
+function saveConfig(c) { cfg = c; localStorage.setItem(LS_KEY, JSON.stringify(c)); }
+
+// ── State ───────────────────────────────────────────────────
+let coverFile = null;
+let existingCoverPath = null; // for edit mode: current cover path in repo
+let editingSlug = null;       // null = new article, string = editing existing
+let pendingDeleteSlug = null;
+let cachedArticlesData = null;
+
+// ── Toast ────────────────────────────────────────────────────
+function toast(msg, type = 'info', ms = 4000) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+// ── Badge ────────────────────────────────────────────────────
+function setBadge(state, text) {
+  const b = document.getElementById('conn-badge');
+  b.className = `header-badge badge-${state}`;
+  b.textContent = text;
+}
+
+// ── Tabs ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  const isWrite = tab === 'write';
+  document.getElementById('tab-write').classList.toggle('active', isWrite);
+  document.getElementById('tab-articles').classList.toggle('active', !isWrite);
+  document.getElementById('pane-write').style.display = isWrite ? 'flex' : 'none';
+  document.getElementById('pane-articles').style.display = isWrite ? 'none' : 'flex';
+  if (!isWrite && cfg) loadArticlesList();
+}
+
+// ── Slug ─────────────────────────────────────────────────────
+function toSlug(title) {
+  return title.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '').trim()
+    .replace(/\s+/g, '-').replace(/-+/g, '-');
+}
+
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+// ── Markdown renderer ────────────────────────────────────────
+marked.use({
+  renderer: {
+    code(token) {
+      const text = typeof token === 'object' ? (token.text || '') : String(token);
+      const lang = typeof token === 'object' ? (token.lang || '') : '';
+      if (typeof hljs === 'undefined') return `<pre><code>${text}</code></pre>`;
+      const l = (lang && hljs.getLanguage(lang)) ? lang : 'plaintext';
+      try { return `<pre><code class="hljs language-${l}">${hljs.highlight(text, { language: l }).value}</code></pre>`; }
+      catch { return `<pre><code>${text}</code></pre>`; }
+    }
+  },
+  gfm: true, breaks: false
+});
+
+// ── Preview ──────────────────────────────────────────────────
+function updatePreview() {
+  const title   = document.getElementById('f-title').value.trim();
+  const md      = document.getElementById('markdown-input').value;
+  const tagsRaw = document.getElementById('f-tags').value.trim();
+  const date    = document.getElementById('f-date').value;
+  const rt      = document.getElementById('f-readtime').value;
+
+  const ptitle = document.getElementById('preview-title');
+  if (title) { ptitle.textContent = title; ptitle.style.cssText = ''; }
+  else { ptitle.textContent = 'Start writing to see a preview'; ptitle.style.cssText = 'color:var(--text-3);font-style:italic;font-weight:400;font-size:1.25rem'; }
+
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  document.getElementById('preview-tags').innerHTML = tags.map(t => `<span class="atag">${t}</span>`).join('');
+
+  const metaEl = document.getElementById('preview-meta');
+  if (date || rt) {
+    const fmt = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
+    metaEl.innerHTML = [fmt, rt ? `${rt} min read` : ''].filter(Boolean).join(' · ');
+    metaEl.style.display = '';
+  } else { metaEl.style.display = 'none'; }
+
+  try {
+    const content = md.replace(/^#\s+.+\n?/, '');
+    document.getElementById('preview-body').innerHTML = content ? marked.parse(content) : '';
+  } catch { document.getElementById('preview-body').textContent = md; }
+
+  const slug = editingSlug || toSlug(title);
+  document.getElementById('slug-preview').textContent = slug ? `slug: ${slug}` : '';
+  document.getElementById('char-count').textContent = `${md.length} chars`;
+}
+
+// ── Cover ────────────────────────────────────────────────────
+function setCoverFile(file) {
+  if (!file) return;
+  coverFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    const img = document.getElementById('cover-img-preview');
+    img.src = src; img.classList.add('visible');
+    document.getElementById('cover-placeholder').style.display = 'none';
+    document.getElementById('btn-remove-cover').style.display = 'block';
+    document.getElementById('preview-cover').src = src;
+    document.getElementById('preview-cover').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function showCoverFromUrl(url) {
+  const img = document.getElementById('cover-img-preview');
+  img.src = url; img.classList.add('visible');
+  document.getElementById('cover-placeholder').style.display = 'none';
+  document.getElementById('btn-remove-cover').style.display = 'block';
+  document.getElementById('preview-cover').src = url;
+  document.getElementById('preview-cover').style.display = 'block';
+}
+
+function removeCover() {
+  coverFile = null; existingCoverPath = null;
+  document.getElementById('cover-img-preview').classList.remove('visible');
+  document.getElementById('cover-placeholder').style.display = '';
+  document.getElementById('btn-remove-cover').style.display = 'none';
+  document.getElementById('preview-cover').style.display = 'none';
+  document.getElementById('f-cover').value = '';
+}
+
+// ── GitHub API ───────────────────────────────────────────────
+async function ghRequest(method, path, body = null) {
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}`;
+  const opts = {
+    method,
+    headers: { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function ghGetFile(path) {
+  try {
+    const data = await ghRequest('GET', path);
+    // atob returns a Latin-1 binary string; TextDecoder interprets it as UTF-8 bytes
+    const raw = atob(data.content.replace(/\n/g, ''));
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    return { content: new TextDecoder('utf-8').decode(bytes), sha: data.sha };
+  } catch (e) {
+    if (e.message.includes('Not Found') || e.message.includes('404')) return null;
+    throw e;
+  }
+}
+
+async function ghPutFile(path, content, message, sha = null) {
+  const body = { message, content: btoa(unescape(encodeURIComponent(content))) };
+  if (sha) body.sha = sha;
+  return ghRequest('PUT', path, body);
+}
+
+async function ghPutBinary(path, base64, message, sha = null) {
+  const body = { message, content: base64 };
+  if (sha) body.sha = sha;
+  return ghRequest('PUT', path, body);
+}
+
+async function ghDeleteFile(path, message, sha) {
+  return ghRequest('DELETE', path, { message, sha });
+}
+
+async function testConnection() {
+  const res = await fetch('https://api.github.com/user', {
+    headers: { Authorization: `token ${cfg.token}` }
+  });
+  if (!res.ok) throw new Error('Invalid token');
+  return res.json();
+}
+
+// ── data.js helpers ──────────────────────────────────────────
+
+// Repair strings double-encoded as UTF-8 (e.g. 'HistÃ³ria' → 'História').
+// Safety: only applies when the decoded result is SHORTER (bytes were combined)
+// and contains no replacement chars (U+FFFD would mean bytes were invalid, not double-encoded).
+function repairEncoding(str) {
+  if (typeof str !== 'string') return str;
+  try {
+    const bytes = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+      const c = str.charCodeAt(i);
+      if (c > 255) return str; // proper Unicode above Latin-1 — nothing to repair
+      bytes[i] = c;
+    }
+    const decoded = new TextDecoder('utf-8').decode(bytes);
+    if (decoded.length < str.length && !decoded.includes('\uFFFD')) return decoded;
+    return str;
+  } catch { return str; }
+}
+
+function parseDataJs(source) {
+  const tmp = {};
+  try { new Function('window', source)(tmp); } catch {}
+  const data = tmp.ARTICLES_DATA || { author: { name: 'Henrique Severo', avatar: '../assets/henrique.png' }, articles: [] };
+  // Repair any previously double-encoded strings
+  data.articles = data.articles.map(a => ({
+    ...a,
+    title:   repairEncoding(a.title),
+    excerpt: repairEncoding(a.excerpt),
+    tags:    (a.tags || []).map(repairEncoding),
+  }));
+  return data;
+}
+
+function buildDataJs(data) {
+  const lines = ['window.ARTICLES_DATA = {', '  author: {',
+    `    name:   '${data.author.name}',`, `    avatar: '${data.author.avatar}',`,
+    '  },', '  articles: ['];
+  for (const a of data.articles) {
+    const safeTitle   = a.title.trim().replace(/[\r\n]+/g, ' ').replace(/'/g, "\\'");
+    const safeExcerpt = a.excerpt.trim().replace(/[\r\n]+/g, ' ').replace(/'/g, "\\'");
+    lines.push('    {');
+    lines.push(`      slug:     '${a.slug}',`);
+    lines.push(`      title:    '${safeTitle}',`);
+    lines.push(`      excerpt:  '${safeExcerpt}',`);
+    lines.push(`      date:     '${a.date}',`);
+    lines.push(`      readTime: ${a.readTime},`);
+    lines.push(`      tags:     [${a.tags.map(t => `'${t}'`).join(', ')}],`);
+    if (a.cover)    lines.push(`      cover:    '${a.cover}',`);
+    if (a.gradient) lines.push(`      gradient: '${a.gradient}',`);
+    lines.push('    },');
+  }
+  lines.push('  ],', '};');
+  return lines.join('\n');
+}
+
+async function fetchArticlesData() {
+  const file = await ghGetFile('src/articles/data.js');
+  if (!file) return { author: { name: 'Henrique Severo', avatar: '../assets/henrique.png' }, articles: [] };
+  cachedArticlesData = { ...parseDataJs(file.content), sha: file.sha };
+  return cachedArticlesData;
+}
+
+// ── Articles list ─────────────────────────────────────────────
+async function loadArticlesList() {
+  if (!cfg) return;
+  const list = document.getElementById('articles-list');
+  list.innerHTML = '<p class="articles-loading-msg">Loading...</p>';
+  document.getElementById('articles-count').textContent = '—';
+
+  try {
+    const data = await fetchArticlesData();
+    const articles = data.articles || [];
+    document.getElementById('articles-count').textContent = `${articles.length} article${articles.length !== 1 ? 's' : ''}`;
+
+    if (!articles.length) {
+      list.innerHTML = '<p class="articles-empty">No articles yet.</p>';
+      return;
+    }
+
+    list.innerHTML = articles.map(a => {
+      const coverUrl = a.cover ? `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch || 'main'}/src/articles/${a.cover}` : null;
+      const coverStyle = coverUrl ? `background-image:url('${coverUrl}')` : '';
+      const dateStr = a.date ? new Date(a.date + 'T00:00:00').toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '';
+      return `
+        <div class="article-item">
+          <div class="article-item-cover" style="${coverStyle}">
+            ${!coverUrl ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>` : ''}
+          </div>
+          <div class="article-item-info">
+            <span class="article-item-title">${a.title}</span>
+            <span class="article-item-meta">${[dateStr, a.slug].filter(Boolean).join(' · ')}</span>
+          </div>
+          <div class="article-item-actions">
+            <button class="btn-edit-item" onclick="editArticle('${a.slug}')">Edit</button>
+            <button class="btn-delete-item" onclick="confirmDelete('${a.slug}', '${a.title.replace(/'/g, "\\'")}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    list.innerHTML = `<p class="articles-empty">Error: ${err.message}</p>`;
+    toast(`Failed to load articles: ${err.message}`, 'error');
+  }
+}
+
+// ── Edit article ──────────────────────────────────────────────
+async function editArticle(slug) {
+  if (!cfg) return;
+  switchTab('write');
+  setStatus('Loading article...');
+
+  try {
+    const data = cachedArticlesData || await fetchArticlesData();
+    const meta = data.articles.find(a => a.slug === slug);
+    if (!meta) throw new Error(`Article "${slug}" not found in data.js`);
+
+    // Fill metadata
+    document.getElementById('f-title').value   = meta.title;
+    document.getElementById('f-excerpt').value = meta.excerpt;
+    document.getElementById('f-tags').value    = (meta.tags || []).join(', ');
+    document.getElementById('f-readtime').value = meta.readTime || 5;
+    document.getElementById('f-date').value    = meta.date || todayISO();
+
+    // Cover
+    removeCover();
+    if (meta.cover) {
+      existingCoverPath = meta.cover;
+      const rawUrl = `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch || 'main'}/src/articles/${meta.cover}`;
+      showCoverFromUrl(rawUrl);
+    }
+
+    // Markdown content
+    const mdFile = await ghGetFile(`src/articles/posts/${slug}.md`);
+    document.getElementById('markdown-input').value = mdFile ? mdFile.content : '';
+
+    // Set edit mode
+    editingSlug = slug;
+    document.getElementById('edit-banner').style.display = 'flex';
+    document.getElementById('edit-banner-slug').textContent = slug;
+    document.getElementById('btn-publish-label').textContent = 'Update';
+
+    updatePreview();
+    setStatus('');
+    toast(`Loaded "${meta.title}"`, 'info');
+  } catch (err) {
+    setStatus(`Error: ${err.message}`, 'error');
+    toast(`Failed to load article: ${err.message}`, 'error');
+  }
+}
+
+function newArticle() {
+  editingSlug = null;
+  existingCoverPath = null;
+  document.getElementById('edit-banner').style.display = 'none';
+  document.getElementById('btn-publish-label').textContent = 'Publish';
+  clearForm();
+}
+
+// ── Delete article ────────────────────────────────────────────
+function confirmDelete(slug, title) {
+  pendingDeleteSlug = slug;
+  document.getElementById('confirm-msg').innerHTML =
+    `This will permanently delete <strong>${title}</strong> and remove it from the article index.<br><br>The markdown file and cover (if any) will also be deleted from the repository.`;
+  document.getElementById('modal-confirm').classList.remove('hidden');
+}
+
+function closeConfirm() {
+  pendingDeleteSlug = null;
+  document.getElementById('modal-confirm').classList.add('hidden');
+}
+
+async function confirmDeleteExecute() {
+  if (!pendingDeleteSlug || !cfg) return;
+  const slug = pendingDeleteSlug;
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true;
+  btn.textContent = 'Deleting...';
+
+  try {
+    const data = await fetchArticlesData();
+    const meta = data.articles.find(a => a.slug === slug);
+    if (!meta) throw new Error('Article not found');
+
+    // Delete .md file
+    const mdFile = await ghGetFile(`src/articles/posts/${slug}.md`);
+    if (mdFile) {
+      await ghDeleteFile(`src/articles/posts/${slug}.md`, `feat: remove article "${meta.title}"`, mdFile.sha);
+    }
+
+    // Delete cover if it exists and is slug-specific
+    if (meta.cover) {
+      const coverFile2 = await ghGetFile(`src/articles/${meta.cover}`);
+      if (coverFile2) {
+        await ghDeleteFile(`src/articles/${meta.cover}`, `feat: remove cover for "${meta.title}"`, coverFile2.sha);
+      }
+    }
+
+    // Update data.js — remove article
+    data.articles = data.articles.filter(a => a.slug !== slug);
+    const newDataJs = buildDataJs(data);
+    const dataFile = await ghGetFile('src/articles/data.js');
+    await ghPutFile('src/articles/data.js', newDataJs, `feat: remove article "${meta.title}"`, dataFile?.sha);
+
+    cachedArticlesData = null;
+    closeConfirm();
+    toast(`"${meta.title}" deleted`, 'ok');
+    await loadArticlesList();
+
+    // If we were editing this article, clear the form
+    if (editingSlug === slug) newArticle();
+
+  } catch (err) {
+    toast(`Delete failed: ${err.message}`, 'error', 6000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Delete';
+  }
+}
+
+// ── Publish / Update ──────────────────────────────────────────
+function setStatus(msg, type = '') {
+  const el = document.getElementById('publish-status');
+  el.className = `publish-status ${type}`;
+  el.textContent = msg;
+}
+
+async function publish() {
+  if (!cfg) { toast('Configure GitHub settings first', 'error'); return; }
+
+  const title   = document.getElementById('f-title').value.trim();
+  const excerpt = document.getElementById('f-excerpt').value.trim();
+  const tagsRaw = document.getElementById('f-tags').value.trim();
+  const rt      = parseInt(document.getElementById('f-readtime').value, 10) || 5;
+  const date    = document.getElementById('f-date').value || todayISO();
+  const md      = document.getElementById('markdown-input').value.trim();
+
+  if (!title)   { toast('Title is required', 'error'); return; }
+  if (!excerpt) { toast('Excerpt is required', 'error'); return; }
+  if (!md)      { toast('Content is required', 'error'); return; }
+
+  const slug = editingSlug || toSlug(title);
+  if (!slug)    { toast('Could not generate slug from title', 'error'); return; }
+
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const btn  = document.getElementById('btn-publish');
+  btn.disabled = true;
+
+  try {
+    const branch = cfg.branch || 'main';
+    let coverPath = existingCoverPath; // keep existing cover unless replaced
+
+    // ── Upload new cover if provided ──
+    if (coverFile) {
+      setStatus('Uploading cover...');
+      const ext = coverFile.name.split('.').pop().toLowerCase();
+      const imgPath = `src/articles/covers/${slug}.${ext}`;
+      const base64 = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = e => resolve(e.target.result.split(',')[1]);
+        r.onerror = reject;
+        r.readAsDataURL(coverFile);
+      });
+      const existing = await ghGetFile(imgPath);
+      await ghPutBinary(imgPath, base64, `feat: ${editingSlug ? 'update' : 'add'} cover for "${title}"`, existing?.sha);
+      coverPath = `covers/${slug}.${ext}`;
+      toast('Cover uploaded', 'ok', 2500);
+    }
+
+    // ── Upload markdown ──
+    setStatus(`${editingSlug ? 'Updating' : 'Uploading'} post...`);
+    const mdPath = `src/articles/posts/${slug}.md`;
+    const existingMd = await ghGetFile(mdPath);
+    await ghPutFile(mdPath, md, `feat: ${editingSlug ? 'update' : 'add'} article "${title}"`, existingMd?.sha);
+    toast(`Post ${editingSlug ? 'updated' : 'uploaded'}`, 'ok', 2500);
+
+    // ── Update data.js ──
+    setStatus('Updating article index...');
+    const dataFile = await ghGetFile('src/articles/data.js');
+    const data = dataFile ? parseDataJs(dataFile.content)
+      : { author: { name: 'Henrique Severo', avatar: '../assets/henrique.png' }, articles: [] };
+
+    // Remove existing entry with same slug (create or update)
+    data.articles = data.articles.filter(a => a.slug !== slug);
+
+    const newArticle = { slug, title, excerpt, date, readTime: rt, tags };
+    if (coverPath) newArticle.cover = coverPath;
+
+    // For new articles prepend; for updates keep position or prepend
+    data.articles.unshift(newArticle);
+    cachedArticlesData = null;
+
+    await ghPutFile('src/articles/data.js', buildDataJs(data), `feat: ${editingSlug ? 'update' : 'publish'} "${title}"`, dataFile?.sha);
+
+    // ── Done ──
+    setStatus(`${editingSlug ? 'Updated' : 'Published'}! GitHub Pages updates in ~1 min.`, 'ok');
+    toast(`"${title}" ${editingSlug ? 'updated' : 'published'} successfully!`, 'ok', 6000);
+
+    // Enter edit mode after a new publish so user can iterate
+    if (!editingSlug) {
+      editingSlug = slug;
+      existingCoverPath = coverPath;
+      document.getElementById('edit-banner').style.display = 'flex';
+      document.getElementById('edit-banner-slug').textContent = slug;
+      document.getElementById('btn-publish-label').textContent = 'Update';
+    }
+
+  } catch (err) {
+    setStatus(`Error: ${err.message}`, 'error');
+    toast(`Failed: ${err.message}`, 'error', 6000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Clear / New ───────────────────────────────────────────────
+function clearForm() {
+  ['f-title','f-excerpt','f-tags','markdown-input'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-readtime').value = 5;
+  document.getElementById('f-date').value = todayISO();
+  removeCover();
+  updatePreview();
+  setStatus('');
+}
+
+function confirmClear() {
+  if (confirm(editingSlug ? 'Discard changes and start a new article?' : 'Clear the form?')) newArticle();
+}
+
+// ── Settings modal ────────────────────────────────────────────
+function openSettings() {
+  if (cfg) {
+    document.getElementById('s-token').value  = cfg.token  || '';
+    document.getElementById('s-owner').value  = cfg.owner  || '';
+    document.getElementById('s-repo').value   = cfg.repo   || '';
+    document.getElementById('s-branch').value = cfg.branch || 'main';
+  }
+  document.getElementById('modal-settings').classList.remove('hidden');
+}
+
+function closeSettings() {
+  if (cfg) document.getElementById('modal-settings').classList.add('hidden');
+}
+
+async function saveSettings() {
+  const token  = document.getElementById('s-token').value.trim();
+  const owner  = document.getElementById('s-owner').value.trim();
+  const repo   = document.getElementById('s-repo').value.trim();
+  const branch = document.getElementById('s-branch').value.trim() || 'main';
+  if (!token || !owner || !repo) { toast('Token, owner and repo are required', 'error'); return; }
+
+  const btn = document.getElementById('btn-save-settings');
+  btn.disabled = true; btn.textContent = 'Connecting...';
+
+  try {
+    saveConfig({ token, owner, repo, branch });
+    await testConnection();
+    setBadge('ok', `${owner}/${repo}`);
+    document.getElementById('modal-settings').classList.add('hidden');
+    toast(`Connected to ${owner}/${repo}`, 'ok');
+  } catch (err) {
+    setBadge('error', 'auth failed');
+    toast(`Connection failed: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Save &amp; Connect';
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.getElementById('f-date').value = todayISO();
+
+if (cfg) { setBadge('ok', `${cfg.owner}/${cfg.repo}`); }
+else     { openSettings(); }
+
+// Input events
+['f-title','f-excerpt','f-tags','f-date','f-readtime','markdown-input'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+document.getElementById('f-cover').addEventListener('change', e => {
+  if (e.target.files[0]) setCoverFile(e.target.files[0]);
+});
+
+// Drag & drop cover
+const drop = document.getElementById('cover-drop');
+drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('drag-over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('drag-over');
+  const f = e.dataTransfer?.files[0];
+  if (f && f.type.startsWith('image/')) setCoverFile(f);
+});
+
+// Settings
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('btn-toggle-token').addEventListener('click', () => {
+  const inp = document.getElementById('s-token');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+document.getElementById('modal-settings').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-settings') && cfg) closeSettings();
+});
+document.getElementById('modal-confirm').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-confirm')) closeConfirm();
+});
+
+// Cmd/Ctrl+Enter to publish
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') publish();
+  if (e.key === 'Escape') { closeSettings(); closeConfirm(); }
+});
+</script>
+</body>
+</html>

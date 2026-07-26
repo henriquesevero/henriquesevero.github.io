@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articles — Henrique Severo</title>
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
+  <link rel="stylesheet" href="../styles/styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="articles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar" class="scrolled">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">HS</a>
+
+      <div class="articles-nav-center">
+        <a href="../../index.html" class="articles-back-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <span data-ali18n="home">Home</span>
+        </a>
+      </div>
+
+      <div class="nav-right">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" id="alLangSwitcher">
+          <button class="lang-trigger" id="alLangTrigger" aria-expanded="false" aria-haspopup="listbox" aria-label="Select language">
+            <span class="fi fi-us lang-flag" id="alLangFlag"></span>
+            <span class="lang-code" id="alLangCode">EN</span>
+            <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="lang-dropdown" id="alLangDropdown" role="listbox">
+            <button class="lang-option al-lang-option" data-lang="en" role="option"><span class="fi fi-us"></span><span>English</span></button>
+            <button class="lang-option al-lang-option" data-lang="pt" role="option"><span class="fi fi-br"></span><span>Português</span></button>
+            <button class="lang-option al-lang-option" data-lang="es" role="option"><span class="fi fi-es"></span><span>Español</span></button>
+          </div>
+        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LISTING -->
+  <section class="articles-section">
+    <div class="container">
+      <div class="articles-page-header">
+        <div class="blog-brand">
+          <h2 class="blog-name" id="blogName" aria-label="Henrique Severo"></h2>
+          <span class="blog-label" data-ali18n="blogLabel">Technical Blog</span>
+        </div>
+      </div>
+      <div id="articles-grid" class="articles-grid">
+        <div class="articles-loading">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>© 2026 Henrique Bittencourt Severo</p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="listing.js"></script>
+  <script>
+    // Theme toggle
+    let _t = document.documentElement.getAttribute('data-theme') || 'dark';
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      _t = _t === 'dark' ? 'light' : 'dark';
+      document.documentElement.classList.add('theme-switching');
+      document.documentElement.setAttribute('data-theme', _t);
+      localStorage.setItem('theme', _t);
+      setTimeout(() => document.documentElement.classList.remove('theme-switching'), 400);
+    });
+  </script>
+</body>
+</html>
