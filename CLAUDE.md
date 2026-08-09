@@ -15,12 +15,12 @@ Portfólio pessoal e blog técnico de **Henrique Bittencourt Severo** — Senior
 ```
 portifolio/
 ├── index.html                  ← portfólio principal (single page)
-├── favicon.svg                 ← ícone "HS" verde
+├── favicon.svg                 ← ícone "HS" azul (`#0ea5e9`, trocado de verde em 2026-08-09 junto com a paleta)
 ├── src/
 │   ├── styles/styles.css       ← TODO o CSS do portfólio principal
 │   ├── scripts/script.js       ← TODO o JS do portfólio principal
 │   └── assets/
-│       ├── henrique.png        ← foto de perfil, PNG com fundo transparente (cutout real, alpha 0 nas bordas)
+│       ├── henrique.png        ← ÓRFÃO — foto de perfil (PNG cutout, fundo transparente), não referenciada em nenhum HTML/CSS/JS desde que a foto foi removida do Hero em 2026-08-09
 │       ├── itau-logo.png       ← ÓRFÃO — não referenciado em nenhum HTML/CSS/JS (sobrou da remoção da seção Experience)
 │       ├── pan-logo.png        ← ÓRFÃO — idem
 │       ├── resource-logo.png   ← ÓRFÃO — idem
@@ -51,9 +51,9 @@ portifolio/
 --bg-card:     #111f32
 --border:      rgba(255,255,255,0.07)
 --border-2:    rgba(255,255,255,0.12)
---accent:      #22c55e   /* verde — cor primária de destaque */
---accent-2:    #4ade80   /* verde claro — textos accent */
---accent-glow: rgba(34,197,94,0.25)
+--accent:      #0ea5e9   /* azul — cor primária de destaque */
+--accent-2:    #61dafb   /* azul-ciano claro (cor do átomo/logo do React) — textos accent */
+--accent-glow: rgba(14,165,233,0.25)
 --text-1:      #ecf2ff   /* texto principal */
 --text-2:      #8baabe   /* texto secundário */
 --text-3:      #4c6880   /* texto terciário / labels */
@@ -63,18 +63,19 @@ portifolio/
 ```css
 --bg:       #f0f5ff
 --bg-card:  #ffffff
---accent:   #16a34a
---accent-2: #15803d   /* verde mais escuro para contraste no claro */
+--accent:   #0284c7
+--accent-2: #0369a1   /* azul mais escuro para contraste no claro */
 --text-1:   #08142a
 --text-2:   #2e4462
 ```
 
-> Paleta trocada de índigo para verde a pedido do usuário, espelhando um template de referência (freelancer portfolio). Qualquer `rgba(R,G,B,...)` hardcoded fora de `var(--accent*)` deve seguir essa paleta — ver `styles.css` para valores em uso.
+> Paleta trocada de verde para azul em 2026-08-09 a pedido do usuário, usando o azul-ciano icônico do logotipo/átomo do React (`#61dafb`) como `--accent-2`; `--accent` é um azul um pouco mais saturado/escuro (`#0ea5e9` no dark, `#0284c7` no light) usado em fundos sólidos (botões) para manter contraste com texto branco — `#61dafb` puro é claro demais para isso. Todo `rgba(R,G,B,...)` hardcoded fora de `var(--accent*)` (em `styles.css` e `articles.css`) foi migrado junto — ver os arquivos para os valores em uso. Aplicado tanto no portfólio principal quanto no blog (`articles/`), incluindo o gradiente de capa padrão em `listing.js`. **Não reverter para verde sem pedido explícito.**
 
 ### Tipografia
-- **Corpo:** Inter (Google Fonts)
-- **Código / labels mono:** JetBrains Mono (Google Fonts)
+- **Corpo:** Ubuntu (Google Fonts) — trocado de Inter em 2026-08-09 a pedido do usuário. Pesos carregados: 300/400/500/700 (Ubuntu não tem 600/800 no Google Fonts; `font-weight: 600`/`800` usados em alguns lugares — ex: `.nav-logo`, `strong` — resolvem automaticamente para o 700 real carregado, sem negrito sintético).
+- **Código / labels mono:** JetBrains Mono (Google Fonts) — inalterado
 - **CSS vars:** `--font` e `--mono`
+- Link do Google Fonts precisa ser atualizado em **3 arquivos** sempre que a fonte mudar: `index.html`, `src/articles/index.html`, `src/articles/post.html` (cada um carrega sua própria tag `<link>`, mesmo todos importando `styles.css`).
 
 ### Espaçamento
 - **border-radius:** `--radius: 12px`, `--radius-sm: 8px`
@@ -82,8 +83,8 @@ portifolio/
 
 ### Princípios visuais
 - Tema escuro minimalista, sem decoração excessiva
-- Acento verde (`--accent-2`) para elementos interativos e títulos de destaque
-- **Nome no Hero do portfólio principal:** "Henrique Severo" é texto estático em `--text-1` (sem dois-tons, sem animação de digitação — `initTypewriter` foi removida de `script.js` por quebrar o layout) — decisão deliberada para espelhar um template de referência (foto: nome inteiro branco, verde só na linha do cargo abaixo).
+- Acento azul (`--accent-2`) para elementos interativos e títulos de destaque
+- **Nome no Hero do portfólio principal:** "Henrique Severo" é texto estático em `--text-1` (sem dois-tons, sem animação de digitação — `initTypewriter` foi removida de `script.js` por quebrar o layout) — decisão deliberada para espelhar um template de referência (nome inteiro branco, azul só na linha do cargo abaixo).
 - **O blog (`articles/`) ainda usa o padrão antigo:** "Henrique" em `--text-1` + "Severo" em `.tw-accent` (`--accent-2`) na mesma linha. Isso é uma divergência conhecida entre portfólio principal e blog — não "corrigir" sem confirmar com o usuário, pois foi intencional.
 - Cards com `border: 1px solid var(--border)` e hover com `border-color: var(--border-2)` + `translateY(-Xpx)`
 - Nunca usar emojis
@@ -99,22 +100,20 @@ portifolio/
 | **Dark/Light mode** | Toggle na navbar, persiste em `localStorage`, detecta `prefers-color-scheme` na primeira visita. Anti-flash via script inline no `<head>`. |
 | **Multilíngue** | PT 🇧🇷 / EN 🇺🇸 / ES 🇪🇸 via dropdown de bandeiras. Traduções em `window.translations` no `script.js`. Detecta idioma do browser. Persiste em `localStorage`. |
 | **Reveal on scroll** | `IntersectionObserver` com classe `.reveal` → `.visible`. Stagger entre siblings. |
-| **Navbar** | Fixa, blur ao scroll via `.scrolled`. Hamburger no mobile. Logo (`.nav-logo`) é o wordmark "Henrique Severo" em negrito (sem caixa/borda) — não é mais um badge "HS". O link de Contact (`.nav-cta`) é estilizado como botão pill verde, diferente dos outros links (que são texto simples, sem cor especial — "Articles" não tem mais destaque verde). Idioma e tema continuam funcionando, mantidos a pedido do usuário mesmo após pedir fidelidade "100%" à navbar de referência (que não tem essas opções). |
-| **Foto do Hero** | PNG cutout (`henrique.png`, fundo transparente) sobreposto a um blob verde sólido (`.photo-blob-solid`, ~420px, círculo cheio, sem gradiente/opacidade) — a foto (~440px) extrapola o círculo em cima e embaixo, sem crop circular, e domina visualmente a coluna direita do Hero (deve ser bem maior que o bloco de texto, não do mesmo tamanho). Badges de estatística (`.photo-stats`) ficam sobrepostos na borda inferior da foto via `position: absolute`. |
+| **Navbar** | Fixa, blur ao scroll via `.scrolled`. Hamburger no mobile. Logo (`.nav-logo`) é o wordmark "Henrique Severo" em negrito (sem caixa/borda) — não é mais um badge "HS". O link de Contact (`.nav-cta`) é estilizado como botão pill azul (`var(--accent)`), diferente dos outros links (que são texto simples, sem cor especial — "Articles" não tem mais destaque de cor). Idioma e tema continuam funcionando, mantidos a pedido do usuário mesmo após pedir fidelidade "100%" à navbar de referência (que não tem essas opções). |
+| **Hero sem foto** | A foto (`henrique.png`) foi removida do Hero em 2026-08-09 a pedido do usuário — o Hero agora é uma coluna única centralizada (texto centralizado, sem grid de 2 colunas). Ver detalhe na seção Hero abaixo. |
 
 ### Seções do portfólio (`index.html`)
 
 Estrutura atual (a partir de 2026-06-20), espelhando um template de referência tipo "freelancer portfolio". **Não tem mais Experience nem Education** — foram removidas a pedido do usuário para fidelidade total ao template. **Ordem das seções na página: Hero → What I Do → Portfolio → Testimonials → Skills → Contact** (nav linka Home/What I Do/Code/Reviews/Skills/Articles/Contact, na mesma ordem). O link de nav para `#portfolio` mostra o texto "Code"/"Código" (chave `nav.portfolio`, renomeado de "Portfolio" em 2026-06-20 — a chave continua se chamando `nav.portfolio` internamente, só o texto exibido mudou). **Testimonials ganhou item de nav em 2026-06-20** (`<a href="#testimonials" data-i18n="nav.testimonials">`, entre Code e Skills) — texto é "Reviews"/"Avaliações"/"Reseñas" (chave `nav.testimonials`); a primeira tentativa foi "Recommendations"/"Recomendações"/"Recomendaciones" mas o usuário achou a palavra muito grande no menu e pediu algo mais curto. Skills e Testimonials foram reordenadas mais de uma vez a pedido do usuário; não mover sem pedido explícito.
 
-**Padrão "título grande → label pequeno abaixo, sem traço verde"**: usado em **todas** as seções com heading (What I Do, Portfolio, Testimonials, Skills e Contact — Contact foi convertido em 2026-06-20, era a última a usar o padrão antigo). Classes: `.section-title` ganha modifier `.title-tight` (reduz `margin-bottom` de 4rem pro padrão pequeno) e vem **antes** no HTML; o `.section-label` vem **depois**, com modifiers `.no-dash` (remove o `::before` que desenha o tracinho verde) e `.label-below` (ajusta o espaçamento já que ele virou o último elemento do heading). Esse padrão antigo (label pequeno com traço, vindo ANTES do título grande) não existe mais em nenhuma seção do portfólio principal — não reintroduzi-lo sem pedido explícito.
+**Padrão "título grande → label pequeno abaixo, sem traço azul"**: usado em **todas** as seções com heading (What I Do, Portfolio, Testimonials, Skills e Contact — Contact foi convertido em 2026-06-20, era a última a usar o padrão antigo). Classes: `.section-title` ganha modifier `.title-tight` (reduz `margin-bottom` de 4rem pro padrão pequeno) e vem **antes** no HTML; o `.section-label` vem **depois**, com modifiers `.no-dash` (remove o `::before` que desenha o tracinho azul) e `.label-below` (ajusta o espaçamento já que ele virou o último elemento do heading). Esse padrão antigo (label pequeno com traço, vindo ANTES do título grande) não existe mais em nenhuma seção do portfólio principal — não reintroduzi-lo sem pedido explícito.
 
-1. **Hero** (`#hero`) — layout 2 colunas (`.hero-layout`, `1fr 460px`, `align-items: start` — **não usar `center`**, ver nota abaixo): texto à esquerda é `.hero-name` (nome estático "Henrique Severo", **sem typewriter, sem animação** — foi removido por quebrar o layout) → `.hero-role` verde com o cargo (frase no formato "Eu sou/I'm a ...", sem label "Hello, I am" separado) → `.hero-sub` com uma bio curta de 1 frase (cidade + anos de experiência + foco) → botão único `.btn-pill` "Get in touch". Foto à direita (blob 360px + cutout 460px + stat badges, ver acima). Sem grid de fundo (`.hero-grid` foi removida). **Não reintroduzir o typewriter nem a label "Hello, I am" sem o usuário pedir** — foram removidos deliberadamente.
-   - **Sobre `align-items` em `.hero-layout`:** foi `center` originalmente, mas como a foto (coluna direita) é mais alta que o texto, centralizar as colunas cria um vão grande entre a navbar e o texto (o usuário reclamou disso). `start` resolve isso alinhando o topo das duas colunas. Não trocar de volta para `center` sem testar o espaçamento resultante.
-   - `#hero` não tem `min-height: 100vh` — foi removido pelo mesmo motivo (gerava espaço vazio). `.hero-content` usa `padding: 5.5rem 2rem 2rem` (o `5.5rem` no topo é só pra não colar na navbar fixa).
-   - **Foto (`.photo-cutout`) é deliberadamente maior que o blob verde (`.photo-blob-solid`)** — `cutout: 460px` vs `blob: 360px` (cutout ≈ largura total da coluna `1fr 460px`, preenchendo-a por completo), pra ombros/braços da foto extrapolarem visivelmente as bordas do círculo verde, igual a uma imagem de referência enviada pelo usuário (pessoa maior que o fundo colorido, não contida dentro do círculo). Esse tamanho foi aumentado em 2026-06-20 a partir de um valor menor (blob 340/cutout 360) que existia só pra garantir que o Hero coubesse sem scroll em telas baixas (~600-700px de altura) — **esse trade-off foi aceito explicitamente**: em viewports muito baixos (~600px) os stat badges (`.photo-stats`) podem ficar abaixo da dobra e exigir um pequeno scroll. Não reduzir o tamanho da foto de volta pra "resolver" isso sem confirmar com o usuário, já que a fidelidade visual à referência foi priorizada deliberadamente sobre o encaixe perfeito em telas baixas.
-   - **`.photo-cutout` tem `transform: translateY(-48px)`** — desloca a foto pra cima dentro do `.photo-frame` (que centraliza via flex `align-items:center`), pra cabeça ficar perto do topo do círculo verde em vez de centralizada nele (igual à imagem de referência). Os stat badges (`.photo-stats`) são posicionados via `position:absolute; bottom:0` relativo ao `.photo-frame`, não ao cutout, então esse deslocamento não afeta a posição deles. Se a foto parecer "baixa" de novo no futuro, ajustar esse `translateY` em vez de remexer no `top: 44%` do blob.
+1. **Hero** (`#hero`) — **reformulado em 2026-08-09: a foto foi removida a pedido do usuário.** Layout agora é coluna única centralizada (`.hero-layout` é `display:flex; flex-direction:column; align-items:center; text-align:center`, dentro de `.hero-content` com `max-width:760px`): `.hero-name` (nome estático "Henrique Severo", sem typewriter) → `.hero-role` azul com o cargo → `.hero-sub` (bio curta, `max-width:520px`, centralizada) → botão único `.btn-pill` "Get in touch" → `.hero-stats` (linha central com os 2 stats que antes ficavam sobrepostos na foto — "11+ Years of Experience" e "Backend Specialist" — separados por `.hero-stat-divider`, uma linha vertical de 1px) → `.hero-scroll` (indicador de scroll, inalterado). `#hero` tem `min-height: 88vh` (removido em `@media max-width:900px`, vira `auto`) e um `.hero-glow` — `radial-gradient` sutil usando `var(--accent-glow)` centralizado atrás do texto — para não deixar a seção "vazia" visualmente sem a foto. **Não reintroduzir a foto (`henrique.png`, agora órfã em `src/assets/`) nem o layout de 2 colunas sem pedido explícito do usuário.**
+   - As classes antigas do bloco de foto (`.hero-photo`, `.photo-frame`, `.photo-blob-solid`, `.photo-cutout`, `.photo-stats`, `.stat-badge`, `.stat-num`, `.stat-label`) foram **removidas inteiramente do CSS** — não existem mais. Os stats agora usam classes novas: `.hero-stats`, `.hero-stat`, `.hero-stat-num`, `.hero-stat-label`, `.hero-stat-divider`.
+   - Nota histórica (pré-2026-08-09, mantida por contexto): o Hero já teve um layout de 2 colunas (`1fr 460px`) com a foto (PNG cutout) sobreposta a um blob colorido sólido à direita, com `align-items: start` (não `center`) porque a foto era mais alta que o texto. Esse layout não existe mais — se o usuário pedir a foto de volta no futuro, não basta reverter o CSS: perguntar se o layout de 2 colunas antigo é o que ele quer ou se prefere manter o hero centralizado atual com a foto reintroduzida de outra forma.
 2. **What I Do** (`#what-i-do`) — título grande em CAIXA ALTA "WHAT I DO"/"O QUE EU FAÇO"/"QUÉ HAGO" (chave `whatido.title`, **o texto precisa estar literalmente em maiúsculas, não é `text-transform`**), com label pequeno "Specialization"/"Especialização"/"Especialización" (chave `whatido.label`) abaixo, sem traço (ver padrão título/label no topo desta seção). Sem `.section-sub` (foi removido — não recriar). Grid de 3 `.whatido-card` (ícone circular outline + título uppercase + descrição) — **sem link/CTA "Say Hello" nos cards** (foi removido a pedido do usuário). Conteúdo: Backend Engineering, System Design & Architecture, AI Engineering.
-3. **Portfolio** (`#portfolio`) — título grande "On GitHub"/"No GitHub"/"En GitHub" (chave `portfolio.title`) com label pequeno "Code"/"Código" (chave `portfolio.label`) abaixo, sem traço. Sem `.section-sub`. **Não é mais uma grade de projetos** — o usuário rejeitou tanto cards de projeto placeholder quanto um grid dinâmico de repositórios do GitHub. O que existe hoje é um único card "presentacional" (`.github-feature`, `max-width: 460px`): ícone do GitHub em badge circular + `<h3>` "Explore my code on GitHub" (chave `portfolio.gh_title`) + **stats ao vivo** (`#githubStats`, populado via `fetch` em `https://api.github.com/users/henriquesevero` no final de `script.js` — mostra `public_repos` real, ex: "14+ Public Repositories", chave `portfolio.gh_stat_repos`) + botão pill verde "GitHub" (chave `portfolio.gh_cta`, **uma palavra só**) linkando para `https://github.com/henriquesevero`. **Histórico do card, para não repetir ciclos já percorridos**: já teve uma descrição longa em parágrafo (`portfolio.gh_desc`) — removida em 2026-06-20 porque o usuário achou o texto "muito robótico"; **não recriar esse parágrafo de descrição**, prefira sempre dados reais (stats da API) a texto genérico gerado. Followers (atualmente 5) são deliberadamente não exibidos por ficarem com número baixo/pouco impressionante — só `public_repos` é mostrado. Botão já foi "View my GitHub profile" e o usuário trocou pra uma palavra só ("GitHub"); não reverter sem pedido explícito.
+3. **Portfolio** (`#portfolio`) — título grande "On GitHub"/"No GitHub"/"En GitHub" (chave `portfolio.title`) com label pequeno "Code"/"Código" (chave `portfolio.label`) abaixo, sem traço. Sem `.section-sub`. **Não é mais uma grade de projetos** — o usuário rejeitou tanto cards de projeto placeholder quanto um grid dinâmico de repositórios do GitHub. O que existe hoje é um único card "presentacional" (`.github-feature`, `max-width: 460px`): ícone do GitHub em badge circular + `<h3>` "Explore my code on GitHub" (chave `portfolio.gh_title`) + **stats ao vivo** (`#githubStats`, populado via `fetch` em `https://api.github.com/users/henriquesevero` no final de `script.js` — mostra `public_repos` real, ex: "14+ Public Repositories", chave `portfolio.gh_stat_repos`) + botão pill azul "GitHub" (chave `portfolio.gh_cta`, **uma palavra só**) linkando para `https://github.com/henriquesevero`. **Histórico do card, para não repetir ciclos já percorridos**: já teve uma descrição longa em parágrafo (`portfolio.gh_desc`) — removida em 2026-06-20 porque o usuário achou o texto "muito robótico"; **não recriar esse parágrafo de descrição**, prefira sempre dados reais (stats da API) a texto genérico gerado. Followers (atualmente 5) são deliberadamente não exibidos por ficarem com número baixo/pouco impressionante — só `public_repos` é mostrado. Botão já foi "View my GitHub profile" e o usuário trocou pra uma palavra só ("GitHub"); não reverter sem pedido explícito.
 4. **Testimonials** (`#testimonials`) — título grande "What People Say"/"O Que Dizem Sobre Mim"/"Lo Que Dicen de Mí" com label pequeno "Recommendation"/"Recomendação"/"Recomendación" (chave `testimonials.label`) abaixo, sem traço. **Os 4 depoimentos mock (Jane Doe etc.) foram removidos em 2026-06-20** quando o primeiro depoimento real chegou — não faz sentido misturar identidades fictícias com pessoas reais no mesmo carrossel. Conteúdo atual é **real**, enviado diretamente pelo usuário (texto, nome, cargo e foto) — chaves `testimonials1.text`/`.name`/`.role`, `testimonials2.*` etc., uma por pessoa, **nessa ordem cronológica decrescente (mais recente primeiro)**: atualmente Yan Kelvin (Senior Software Engineer, iFood, 2026), Evandro Alcantara (Coordenador de Risco, Itaú Unibanco, 2026), Roney Amorim (Coordenador de Engenharia, Itaú Unibanco, 2017) e João Maziero (Engenheiro de Software, BTG Pactual, 2017). Ao adicionar um novo depoimento, inserir o `.testimonial-card` na posição correta por ano (há um comentário HTML acima de cada card indicando ano/cargo/empresa) e criar as chaves i18n seguintes (`testimonials5.*` etc.). Fotos reais ficam em `src/assets/testimonials/<nome>.<ext>` (ex: `yan.png`, `evandro.jpeg`, `roney.jpeg`, `joao.jpeg`) e são referenciadas via `<img>` dentro de `.testimonial-avatar` (substituiu as iniciais usadas antes). **Não inventar novos depoimentos** — só adicionar quando o usuário mandar nome, cargo, texto e foto reais.
    - **Layout é um carrossel horizontal moderno** (`.testimonial-track`): `display:flex` com `overflow-x:auto`, `scroll-snap-type:x mandatory` e cards de largura fixa (`flex: 0 0 clamp(260px, 32vw, 340px)`) — todos os cards ficam "lado a lado" em uma única fileira (não paginado em grupos de 2), e o usuário pode arrastar com o mouse (drag-to-scroll via Pointer Events em `script.js`, classe `.dragging` desativa o scroll-snap durante o arrasto) ou passar o dedo/trackpad nativamente. Setas (`#testimonialPrev`/`#testimonialNext`) fazem `scrollBy` de uma largura de card e voltam pro início ao passar do último (loop). **As setas devem ficar sempre visíveis, mesmo com poucos cards** — uma tentativa anterior de escondê-las quando havia só 1 card foi revertida a pedido explícito do usuário ("tem que ficar igual era antes, com as setas"); não esconder/remover `.testimonial-controls` condicionalmente de novo. **Não é** uma grid CSS estática nem um carrossel com `transform`/dots — já foi tentado das duas formas e o usuário pediu explicitamente o comportamento de arrastar/deslizar suave.
 5. **Skills** (`#skills`, título grande "Skills"/"Habilidades"/"Habilidades" com label pequeno "Expertise"/"Conhecimento"/"Conocimiento" abaixo, sem traço, **heading centralizado** (`.center` em ambos, igual What I Do/Portfolio/Testimonials) — segue o padrão título/label descrito no topo desta seção; só o heading é centralizado, o conteúdo abaixo (`.knowledge-grid`, `.spoken-langs`) continua alinhado à esquerda) — **reformulada totalmente em 2026-06-20, não lista mais nomes/ícones de ferramentas**. O usuário pediu explicitamente para tirar a grade de pills com ícones Devicon (`.tech-categories`/`.tech-row`/`.tech-card`/`.ai-icon` foram **removidos do HTML e do CSS**, não existem mais) e substituir por texto descritivo do conhecimento, em parágrafos curtos (resumidos a pedido do usuário em 2026-06-20 — não reexpandir os textos de `skills.cat1-4_desc` sem pedido). **Academic Background e Certifications foram removidos inteiramente em 2026-06-20** (HTML, CSS — `.skills-subblock`/`.edu-*`/`.cert-*` não existem mais — e chaves i18n `skills.edu_label`/`skills.edu1-3_course`/`skills.edu1-3_meta`/`skills.cert_label`) a pedido explícito do usuário. Não recriar esses blocos sem pedido explícito — se o usuário quiser readicionar formação/certificações no futuro, pedir os dados reais de novo (instituição, curso, ano / emissor, nome), não reaproveitar os dados antigos sem confirmar que ainda são válidos. Estrutura atual, bem mais simples:
@@ -190,7 +189,7 @@ No HTML do blog, usar `data-ali18n="chave"` (note o prefixo `al`).
 
 ```html
 <!-- Fontes -->
-https://fonts.googleapis.com/css2?family=Inter&family=JetBrains+Mono
+https://fonts.googleapis.com/css2?family=Ubuntu&family=JetBrains+Mono
 
 <!-- Bandeiras -->
 https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css
@@ -238,7 +237,7 @@ transform: translateY(-Xpx);
 ```html
 <div class="section-label">Nome da Seção</div>
 ```
-Linha verde + texto mono uppercase pequeno.
+Linha azul + texto mono uppercase pequeno.
 
 ### Tag/chip de tecnologia
 ```html
@@ -258,7 +257,7 @@ Usa CSS custom property `--ic` para a cor de fundo do badge.
 
 ## O que NÃO fazer
 
-- Não usar `!important` exceto nos casos já existentes (`.nav-cta`, para garantir texto branco sobre o fundo verde do botão)
+- Não usar `!important` exceto nos casos já existentes (`.nav-cta`, para garantir texto branco sobre o fundo azul do botão)
 - Não adicionar animações CSS em elementos que já usam `.reveal`
 - Não criar novos arquivos CSS — estender `styles.css` (portfólio) ou `articles.css` (blog)
 - Não usar `fetch()` para carregar dados locais do blog — usar `data.js` como global `window.ARTICLES_DATA`

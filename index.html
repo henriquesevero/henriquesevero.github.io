@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <!-- Prevent flash of wrong theme -->
   <script>
     (function () {
@@ -86,33 +86,27 @@
 
   <!-- HERO -->
   <section id="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
     <div class="hero-content">
       <div class="hero-layout">
-        <div class="hero-text">
-          <h1 class="hero-name reveal" id="heroName">Henrique Severo</h1>
-          <p class="hero-role reveal" data-i18n="hero.tag">I'm a Software Engineer</p>
-          <p class="hero-sub reveal" data-i18n="hero.sub">From São Paulo, Brazil, I'm a Software Engineer with 11 years of experience designing and building backend systems for distributed, high-availability environments.</p>
-          <div class="hero-cta reveal">
-            <a href="#contact" class="btn btn-primary btn-pill" data-i18n="hero.cta_contact">Get in touch</a>
-          </div>
-          <div class="hero-scroll reveal"><span></span></div>
+        <h1 class="hero-name reveal" id="heroName">Henrique Severo</h1>
+        <p class="hero-role reveal" data-i18n="hero.tag">I'm a Software Engineer</p>
+        <p class="hero-sub reveal" data-i18n="hero.sub">From São Paulo, Brazil, I'm a Software Engineer with 11 years of experience designing and building backend systems for distributed, high-availability environments.</p>
+        <div class="hero-cta reveal">
+          <a href="#contact" class="btn btn-primary btn-pill" data-i18n="hero.cta_contact">Get in touch</a>
         </div>
-        <div class="hero-photo reveal">
-          <div class="photo-frame">
-            <div class="photo-blob-solid" aria-hidden="true"></div>
-            <img src="src/assets/henrique.png" alt="Henrique Severo" class="photo-cutout" />
-            <div class="photo-stats">
-              <div class="stat-badge">
-                <span class="stat-num">11+</span>
-                <span class="stat-label" data-i18n="about.stat1_label">Years of Experience</span>
-              </div>
-              <div class="stat-badge">
-                <span class="stat-num" data-i18n="about.stat2_num">Backend</span>
-                <span class="stat-label" data-i18n="about.stat2_label">Specialist</span>
-              </div>
-            </div>
+        <div class="hero-stats reveal">
+          <div class="hero-stat">
+            <span class="hero-stat-num">11+</span>
+            <span class="hero-stat-label" data-i18n="about.stat1_label">Years of Experience</span>
+          </div>
+          <div class="hero-stat-divider" aria-hidden="true"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-num" data-i18n="about.stat2_num">Backend</span>
+            <span class="hero-stat-label" data-i18n="about.stat2_label">Specialist</span>
           </div>
         </div>
+        <div class="hero-scroll reveal"><span></span></div>
       </div>
     </div>
   </section>

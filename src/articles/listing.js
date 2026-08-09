@@ -118,7 +118,7 @@ function coverHTML(article) {
   if (article.cover) {
     return `<img src="${article.cover}" alt="" class="card-cover-img" loading="lazy" />`;
   }
-  const gradient = article.gradient || 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)';
+  const gradient = article.gradient || 'linear-gradient(135deg, #0ea5e9 0%, #61dafb 100%)';
   return `<div class="card-cover-gradient" style="background:${gradient}">
     <svg viewBox="0 0 48 48" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round">
       <rect x="6" y="6" width="36" height="36" rx="4"/>
