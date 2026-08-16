@@ -11,7 +11,7 @@ window.ARTICLES_DATA = {
       date:     '2026-05-01',
       readTime: 12,
       tags:     ['Golang', 'Go Routines', 'Channels'],
-      cover:    'covers/modelo-de-concorrencia-em-go-go-routines-channels-e-padroes-de-comunicacao.png',
+      cover:    'covers/modelo-de-concorrencia-em-go-go-routines-channels-e-padroes-de-comunicacao.jpeg',
     },
   ],
 };
