@@ -5,6 +5,15 @@ window.ARTICLES_DATA = {
   },
   articles: [
     {
+      slug:     'apache-kafka-desvendando-a-origem-e-a-arquitetura',
+      title:    'Apache Kafka Desvendando a Origem e a Arquitetura',
+      excerpt:  'escubra a origem do Apache Kafka no LinkedIn e entenda sua arquitetura robusta baseada em commit log, tópicos, partições, offsets e brokers, além da evolução rumo à KIP-500.',
+      date:     '2026-08-16',
+      readTime: 3,
+      tags:     ['Apache Kafka', 'Queue', 'Message Broker', 'Event Processing'],
+      cover:    'covers/apache-kafka-desvendando-a-origem-e-a-arquitetura.jpeg',
+    },
+    {
       slug:     'o-modelo-osi-compreendendo-a-arquitetura-das-redes-de-computadores',
       title:    'O Modelo OSI: Compreendendo a Arquitetura das Redes de Computadores',
       excerpt:  'Como o seu computador consegue abrir um site que está do outro lado do mundo? Para explicar essa mágica, os cientistas criaram o Modelo OSI.',
